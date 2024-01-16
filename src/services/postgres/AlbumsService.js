@@ -18,7 +18,7 @@ class AlbumsService {
             text: 'INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING id',
             values: [id, name, year, createdAt],
         };
-        console.log(query.values);
+
         const result = await this._pool.query(query);
 
         if (!result.rows[0].id) {
