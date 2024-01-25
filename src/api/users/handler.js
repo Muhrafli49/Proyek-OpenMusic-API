@@ -53,7 +53,7 @@ class UsersHandler {
                 status: 'success',
                 data: {
                     user,
-                 },
+                },
             };
         } catch (error) {
             if (error instanceof ClientError) {
