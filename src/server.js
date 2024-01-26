@@ -140,32 +140,31 @@ const init = async () => {
         },
     ]);
 
-    // Menambahkan extension function onPreResponse
-    server.ext('onPreResponse', (request, h) => {
-        // Mendapatkan konteks response dari request
-        const { response } = request;
+// Menambahkan extension function onPreResponse
+server.ext('onPreResponse', (request, h) => {
+    const { response } = request;
 
-        // Memeriksa apakah response merupakan instance dari Error
-        if (response instanceof Error) {
-            // Penanganan client error secara internal.
-            const newResponse = h.response({
-                status: 'fail',
-                message: response.message,
-            });
-            newResponse.code(response.statusCode);
-            return newResponse;
-        }
+    // Menampilkan informasi respons ke konsol
+    console.log('Server response:', response);
 
-        // Jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
-        return h.continue;
-    });
-
-    try {
-        await server.start();
-        console.log(`Server berjalan pada ${server.info.uri}`);
-    } catch (err) {
-        console.error('Error starting server:', err);
+    if (response instanceof Error) {
+        const newResponse = h.response({
+            status: 'fail',
+            message: response.message,
+        });
+        newResponse.code(Number(response.statusCode));
+        return newResponse;
     }
+
+    return h.continue;
+});
+
+try {
+    await server.start();
+    console.log(`Server berjalan pada ${server.info.uri}`);
+} catch (err) {
+    console.error('Error starting server:', err);
+}
 };
 
 init();
