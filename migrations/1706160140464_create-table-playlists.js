@@ -17,7 +17,9 @@ exports.up = (pgm) => {
             notNull: true,
         },
     });
+    pgm.addConstraint('playlists', 'fk_playlist_owner_user_id', 'FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE');
 };
+
 
 exports.down = (pgm) => {
     pgm.dropTable('playlists');

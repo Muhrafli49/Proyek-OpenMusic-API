@@ -52,11 +52,16 @@ class PlaylistsongsHandler {
     }
 
     async getPlaylistsongByIdHandler(request, h) {
-        try {
+    try {
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
 
         await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+
+        // Dapatkan informasi playlist
+        const playlist = await this._playlistsService.getPlaylistById(playlistId);
+
+        // Dapatkan lagu-lagu dari playlist
         const playlistsongs = await this._playlistsongsService.getPlaylistsongById(playlistId);
 
         const playlistsongsProps = playlistsongs.map((playlistsong) => ({
@@ -65,17 +70,25 @@ class PlaylistsongsHandler {
             performer: playlistsong.performer,
         }));
 
-        return {
+        // Gabungkan informasi playlist dan lagu-lagu dalam respons
+        const response = {
             status: "success",
             data: {
-            songs: playlistsongsProps,
+                playlist: {
+                    id: playlist.id,
+                    name: playlist.name,
+                    username: playlist.username,
+                    songs: playlistsongsProps,
+                },
             },
         };
-        } catch (error) {
+
+        return h.response(response);
+    } catch (error) {
         if (error instanceof ClientError) {
             const response = h.response({
-            status: "fail",
-            message: error.message,
+                status: "fail",
+                message: error.message,
             });
             response.code(error.statusCode);
             return response;
@@ -89,8 +102,8 @@ class PlaylistsongsHandler {
         response.code(500);
         console.error(error);
         return response;
-        }
     }
+}
 
     async deletePlaylistsongHandler(request, h) {
         try {
