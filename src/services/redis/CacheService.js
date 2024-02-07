@@ -5,16 +5,18 @@ class CacheService {
         this._client = redis.createClient({
             socket: {
                 host: process.env.REDIS_SERVER,
+                port: 6379,
             },
-        });
+        })
 
         this._client.on('error', (error) => {
             console.error(error);
-        });
+        })
 
         this._client.on('connect', () => {
             console.log('Koneksi Redis berhasil');
-        });
+        })
+        this._client.connect();
     }
 
     async set(key, value, expirationInSecond = 1800) {

@@ -3,7 +3,7 @@ const ClientError = require('../../exceptions/ClientError')
 
 
 class AlbumsHandler {
-    constructor(AlbumsService, AlbumsValidator) {
+    constructor(AlbumsService, AlbumsValidator ) {
         this._albumsService = AlbumsService;
         this._albumsValidator = AlbumsValidator;
 
@@ -11,6 +11,7 @@ class AlbumsHandler {
         this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
         this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
         this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
+        
         this.postAlbumLikesByIdHandler = this.postAlbumLikesByIdHandler.bind(this);
         this.getAlbumLikesByIdHandler = this.getAlbumLikesByIdHandler.bind(this);
 
@@ -53,31 +54,31 @@ class AlbumsHandler {
         }
     }
 
-    async getAlbumByIdHandler(request, h) {
-        try {
-            const { id, coverUrl } = request.params;
-            const album = await this._albumsService.getAlbumById(id, coverUrl);
+    async getAlbumByIdHandler(request) {
+            const { id } = request.params;
+            const album = await this._albumsService.getAlbumById(id);
+            const cover = await this._albumsService.getAlbumCoverById(id);
+            // const songs = await this._songsService.getSongByAlbumId(id);
+
+            const filePath = cover && cover.path ? cover.path : null;
+
+
+            const data = {
+                id: album.id,
+                name: album.name,
+                year: album.year,
+                coverUrl: filePath,
+            }
+        
             return {
                 status: 'success',
                 data: {
-                    album,
+                    album: {
+                        ...data,
+                    },
                 },
-            };
-        } catch (error) {
-            if (error instanceof ClientError) {
-                return h.response({
-                    status: 'fail',
-                    message: error.message,
-                }).code(error.statusCode);
             }
-    
-            console.error(error);
-            return h.response({
-                status: 'error',
-                message: 'Maaf, terjadi kegagalan pada server kami.',
-            }).code(500);
         }
-    }
     
     async putAlbumByIdHandler(request, h) {
         try {
@@ -140,84 +141,54 @@ class AlbumsHandler {
         }
     }
 
+    // likes albums
+
     async postAlbumLikesByIdHandler(request, h) {
-        try {
-            const { id: userId } = request.auth.credentials;
+
+        const { id: albumId } = request.params
+        const { id: credentialId } = request.auth.credentials
     
-            // Pastikan bahwa albumId yang dikirimkan adalah nilai valid dari kolom 'id'
-            const album = await this._albumsService.getAlbumById(request.params.id);
-            const albumId = album.id;
+        await this._albumsService.addAlbumLike(albumId, credentialId)
     
-            this._albumsValidator.validateAlbumLikesPayload({ albumId, userId });
+        const response = h.response({
+            status: 'success',
+            message: 'Anda menyukai album ini',
+        })
     
-            const like = await this._albumsService.searchAlbumLikeById(albumId, userId);
+        response.code(201)
     
-            if (!like) {
-                await this._albumsService.addAlbumLike(albumId, userId);
-                const response = h.response({
-                    status: 'success',
-                    message: 'Berhasil menyukai album.',
-                });
-                response.code(201);
-                return response;
-            }
-    
-            await this._albumsService.deleteAlbumLike(albumId, userId);
-            const response = h.response({
-                status: 'success',
-                message: 'Berhasil membatalkan menyukai album.',
-            });
-            response.code(201);
-            return response;
-        } catch (error) {
-            if (error instanceof ClientError) {
-                const response = h.response({
-                    status: 'fail',
-                    message: error.message,
-                });
-                response.code(error.statusCode);
-                return response;
-            }
-    
-            const response = h.response({
-                status: 'error',
-                message: 'Maaf, terjadi kegagalan pada server kami.',
-            });
-            response.code(500);
-            console.error(error);
-            return response;
-        }
+        return response
+
     }
     
 
     async getAlbumLikesByIdHandler(request, h) {
-        try {
-            const { id: albumId } = request.params;
-            await this._albumsService.searchAlbumById(albumId);
-            const { isCache, likeCount } = await this._albumsService.getAlbumLikesById(albumId);
-            const response = h.response({
-                status: 'success',
-                data: {
-                    likes: likeCount,
-                },
-            });
-            if (isCache) {
-                response.header('X-Data-Source', 'cache');
-            }
-            return response;
-        } catch (error) {
-            if (error instanceof ClientError) {
-                return h.response({
-                    status: 'fail',
-                    message: error.message,
-                }).code(error.statusCode);
-            }
+        const { id: albumId } = request.params
 
-            console.error(error);
-            return h.response({
-                status: 'error',
-                message: 'Maaf, terjadi kegagalan pada server kami.',
-            }).code(500);
+        const { like, source} = await this._albumsService.getAlbumLikesById(albumId)
+    
+        const response = h.response({
+            status: 'success',
+            data: {
+                likes: like,
+            },
+        })
+    
+        response.code(200)
+        response.header('X-Data-Source', source)
+    
+        return response
+        
+    }
+    async deleteLikeAlbumByIdHandler(request) {
+        const { id: albumId } = request.params
+        const { id: credentialId } = request.auth.credentials
+    
+        await this._albumsService.deleteAlbumLike(albumId, credentialId)
+    
+        return {
+            status: 'success',
+            message: 'Anda berhasil menghapus like',
         }
     }
 }

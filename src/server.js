@@ -60,14 +60,14 @@ const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
     const cacheService = new CacheService();
-    const albumsService = new AlbumsService(cacheService);
+    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+    const albumsService = new AlbumsService(cacheService, storageService);
     const songsService = new SongsService();
     const usersService = new UserService();
     const authenticationsService = new AuthenticationsService();
     const collaborationsService = new CollaborationsService();
     const playlistsService = new PlaylistsService(collaborationsService);
     const playlistsongsService = new PlaylistsongsService();
-    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
     const server = Hapi.server({
         port: process.env.PORT,
@@ -111,6 +111,7 @@ const init = async () => {
             plugin: albums,
             options: {
                 service: albumsService,
+                storageService,
                 validator: albumsValidator,
             },
         },
@@ -171,7 +172,7 @@ const init = async () => {
         {
             plugin: uploads,
             options: {
-                service: storageService,
+                service: StorageService,
                 albumsService,
                 validator: UploadsValidator,
             },

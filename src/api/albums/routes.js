@@ -36,11 +36,15 @@ const routes = (handler) => [
     },
     {
         method: 'GET',
-        path: '/albums/cover/{param*}',
-        handler: {
-            directory: {
-                path: path.join(__dirname, '/../uploads/file/images'),
-            },
+        path: '/albums/{id}/likes',
+        handler: handler.getAlbumLikesByIdHandler,
+    },
+    {
+        method: 'DELETE',
+        path: '/albums/{id}/likes',
+        handler: handler.deleteLikeAlbumByIdHandler,
+        options: {
+            auth: 'songsapp_jwt',
         },
     },
 ];

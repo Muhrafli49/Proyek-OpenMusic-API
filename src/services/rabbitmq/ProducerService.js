@@ -4,15 +4,14 @@ const ProducerService = {
     sendMessage: async (queue, message) => {
         const connection = await amqp.connect(process.env.RABBITMQ_SERVER);
         const channel = await connection.createChannel();
-        const queueName = 'export:playlist';
 
-            await channel.assertQueue(queueName, {
-                durable: true,
-            });
-    
+    await channel.assertQueue(queue, {
+        durable: true,
+    });
+
         await channel.sendToQueue(queue, Buffer.from(message));
-    
-    setTimeout(() => {
+
+        setTimeout(() => {
         connection.close();
         }, 1000);
     },

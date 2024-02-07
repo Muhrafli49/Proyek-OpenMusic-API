@@ -30,26 +30,17 @@ exports.up = (pgm) => {
 
     pgm.addConstraint(
         'user_album_likes',
-        'unique_album_id_and_user_id',
-        'UNIQUE(album_id, user_id)',
+        'fk_user_album_likes.album_id_albums.id',
+        'FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE'
     );
 
     pgm.addConstraint(
         'user_album_likes',
-        'fk_user_album_likes.album_id',
-        'FOREIGN KEY(album_id) REFERENCES albums(id) ON DELETE CASCADE',
-    );
-
-    pgm.addConstraint(
-        'user_album_likes',
-        'fk_user_album_likes.user_id',
+        'fk_user_album_likes.users_id',
         'FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE',
     );
 };
 
 exports.down = (pgm) => {
-    pgm.dropConstraint('user_album_likes', 'unique_album_id_and_user_id');
-    pgm.dropConstraint('user_album_likes', 'fk_user_album_likes.album_id');
-    pgm.dropConstraint('user_album_likes', 'fk_user_album_likes.user_id');
     pgm.dropTable('user_album_likes');
 };
