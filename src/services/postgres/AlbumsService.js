@@ -193,21 +193,29 @@ class AlbumsService {
         }
         }
     } 
+    // albumservice 
     async addAlbumCover({ albumId, file, meta }) {
-        const filename = await this.storageService.writeFile(file, meta);
-    
-        const query = {
-            text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
-            values: [filename, albumId],
-        };
-    
-        const result = await this.pool.query(query);
-        if (!result.rowCount) {
-            throw new NotFoundError('Gagal mengubah cover album, Id tidak ditemukan!');
+        try {
+            const filename = await this.storageService.writeFile(file, meta);
+
+            const query = {
+                text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+                values: [filename, albumId],
+            };
+
+            const result = await this.pool.query(query);
+            if (!result.rowCount) {
+                throw new NotFoundError('Gagal mengubah cover album, Id tidak ditemukan!');
+            }
+
+            return filename;
+        } catch (error) {
+            // Tambahkan penanganan kesalahan di sini jika diperlukan
+            console.error(error);
+            throw new Error('Gagal menambahkan cover album.');
         }
-    
-        return filename;
     }
+
 }
 
 module.exports = AlbumsService;
