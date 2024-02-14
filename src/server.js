@@ -173,44 +173,39 @@ const init = async () => {
             plugin: uploads,
             options: {
                 albumsService,
-                validator: UploadsValidator,
                 storageService,
+                uploadValidator: UploadsValidator,
             },
         },
     ]);
 
     server.ext('onPreResponse', (request, h) => {
-        // mendapatkan konteks response dari request
         const { response } = request;
-    
-        if (response instanceof Error) {
 
-          // penanganan client error secara internal.
-        if (response instanceof ClientError) {
+        if (response instanceof Error) {
+            if (response instanceof ClientError) {
             const newResponse = h.response({
                 status: 'fail',
                 message: response.message,
             });
-        newResponse.code(response.statusCode);
-        return newResponse;
+            newResponse.code(response.statusCode);
+            return newResponse;
         }
-    
-          // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
+
         if (!response.isServer) {
             return h.continue;
         }
-    
-          // penanganan server error sesuai kebutuhan
-        console.log(response)
+
+          // Handle other errors
+        console.log(response);
         const newResponse = h.response({
             status: 'error',
-            message: 'terjadi kegagalan pada server kami',
+            message: 'Something went wrong',
         });
         newResponse.code(500);
         return newResponse;
         }
-    
-        // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
+
         return h.continue;
     });
 

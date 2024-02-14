@@ -196,7 +196,7 @@ class AlbumsService {
     // albumservice 
     async addAlbumCover({ albumId, file, meta }) {
         try {
-            const filename = await this.storageService.writeFile(file, meta);
+            const filename = await this._storageService.writeFile(file, meta);
 
             const query = {
                 text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
