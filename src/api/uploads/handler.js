@@ -14,8 +14,8 @@ class UploadsHandler {
             const { cover } = request.payload;
             const { id: albumId } = request.params;
 
-            this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
             this._uploadsValidator.validateImageSize(cover._data.length);
+            this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
             const filename = await this._albumsService.addAlbumCover({
                 albumId,
@@ -34,7 +34,6 @@ class UploadsHandler {
             response.code(201);
             return response;
         } catch (error) {
-            // Biarkan penanganan kesalahan pada level server yang sudah ditentukan sebelumnya
             throw error;
         }
     }

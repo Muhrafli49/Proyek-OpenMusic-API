@@ -203,7 +203,7 @@ class AlbumsService {
                 values: [filename, albumId],
             };
 
-            const result = await this.pool.query(query);
+            const result = await this._pool.query(query);
             if (!result.rowCount) {
                 throw new NotFoundError('Gagal mengubah cover album, Id tidak ditemukan!');
             }
