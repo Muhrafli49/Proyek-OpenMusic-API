@@ -37,7 +37,7 @@ class AlbumsService {
 
     async getAlbumById(id) {
         const queryAlbum = {
-            text: 'SELECT id, name, year FROM albums WHERE id = $1',
+            text: 'SELECT id, name, year, cover FROM albums WHERE id = $1',
             values: [id],
         };
 
@@ -193,8 +193,8 @@ class AlbumsService {
         }
         }
     } 
-    // albumservice 
-    async addAlbumCover({ albumId, file, meta }) {
+    
+    async addAlbumCover({ albumId, meta,  file }) {
         try {
             const filename = await this._storageService.writeFile(file, meta);
 
@@ -210,7 +210,6 @@ class AlbumsService {
 
             return filename;
         } catch (error) {
-            // Tambahkan penanganan kesalahan di sini jika diperlukan
             console.error(error);
             throw new Error('Gagal menambahkan cover album.');
         }

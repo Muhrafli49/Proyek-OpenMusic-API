@@ -57,17 +57,15 @@ class AlbumsHandler {
     async getAlbumByIdHandler(request) {
             const { id } = request.params;
             const album = await this._albumsService.getAlbumById(id);
-            const cover = await this._albumsService.getAlbumCoverById(id);
-            // const songs = await this._songsService.getSongByAlbumId(id);
 
-            const filePath = cover && cover.path ? cover.path : null;
+            const coverUrl = (album.cover) ? `http://${process.env.HOST}:${process.env.PORT}/${album.cover}` : album.cover;
 
 
             const data = {
                 id: album.id,
                 name: album.name,
                 year: album.year,
-                coverUrl: filePath,
+                coverUrl,
             }
         
             return {
