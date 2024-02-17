@@ -60,7 +60,7 @@ const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
     const cacheService = new CacheService();
-    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file'));
     const albumsService = new AlbumsService(cacheService, storageService);
     const songsService = new SongsService();
     const usersService = new UserService();

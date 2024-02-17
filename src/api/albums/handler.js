@@ -58,7 +58,7 @@ class AlbumsHandler {
             const { id } = request.params;
             const album = await this._albumsService.getAlbumById(id);
 
-            const coverUrl = (album.cover) ? `http://${process.env.HOST}:${process.env.PORT}/${album.cover}` : album.cover;
+            const coverUrl = (album.cover) ? `http://${process.env.HOST}:${process.env.PORT}/uploads/images/${album.cover}` : album.cover;
 
 
             const data = {
